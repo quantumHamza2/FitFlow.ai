@@ -1,3 +1,7 @@
+> **Fork status and demo scope:** This repository is a fork; retain the upstream authors' attribution and identify your own changes separately when presenting it. The server now validates its required environment variables at startup and rejects invalid bcrypt costs. Run `cd server && npm test` for configuration checks.
+>
+> The task API currently has no per-user authorization. Keep it local with non-sensitive demo data until authenticated ownership checks are implemented. The alternate auth controller is not wired into the server; the active routes use `JWTPRIVATEKEY`, not `JWT_SECRET`.
+
 <div align="center">
 
 # FitFlow.ai <img width="40" height="40" alt="Group 1707485533" src="https://github.com/user-attachments/assets/1effbbcb-1f4a-4310-bc70-223a88c9963f" />
@@ -94,7 +98,8 @@ Create `server/.env` with:
 ```
 MONGO_URI=mongodb+srv://<username>:<password>@<cluster>/<db>?retryWrites=true&w=majority
 PORT=8080
-JWT_SECRET=change_this_secret
+JWTPRIVATEKEY=replace_with_a_long_random_secret
+SALT=10
 ```
 
 Firebase config for the client is read from `client/src/components/firebaseConfig.jsx`. Ensure your keys are set there if required.

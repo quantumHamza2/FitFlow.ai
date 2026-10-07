@@ -3,6 +3,8 @@ import axios from "axios";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { Plus, Trash2, GripHorizontal } from "lucide-react";
 
+const TASKS_URL = `${import.meta.env.VITE_API_URL || "http://localhost:8080"}/api/tasks`;
+
 const FitnessKanbanBoard = () => {
   const [tasks, setTasks] = useState({
     workoutPlans: [],
@@ -14,7 +16,7 @@ const FitnessKanbanBoard = () => {
   });
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/tasks")
+    axios.get(TASKS_URL)
       .then((response) => {
         const fetchedTasks = response.data;
         const newTasks = {
@@ -27,7 +29,7 @@ const FitnessKanbanBoard = () => {
         };
         
         fetchedTasks.forEach((task) => {
-          newTasks[task.column].push(task);
+          if (newTasks[task.column]) newTasks[task.column].push(task);
         });
         setTasks(newTasks);
       })
@@ -38,12 +40,12 @@ const FitnessKanbanBoard = () => {
     const { source, destination } = result;
     if (!destination) return;
 
-    const newTasks = { ...tasks };
+    const newTasks = Object.fromEntries(Object.entries(tasks).map(([key, values]) => [key, [...values]]));
     const [movedTask] = newTasks[source.droppableId].splice(source.index, 1);
     newTasks[destination.droppableId].splice(destination.index, 0, movedTask);
     setTasks(newTasks);
 
-    axios.put(`http://localhost:5000/api/tasks/${movedTask.id}`, {
+    axios.put(`${TASKS_URL}/${movedTask.id}`, {
       content: movedTask.content,
       column: destination.droppableId
     }).catch((error) => console.error("Error updating task:", error));
@@ -63,7 +65,7 @@ const FitnessKanbanBoard = () => {
         [column]: [...prev[column], newTaskObj]
       }));
 
-      axios.post("http://localhost:5000/api/tasks", newTaskObj)
+      axios.post(TASKS_URL, newTaskObj)
         .catch((error) => console.error("Error adding task:", error));
     }
   };
@@ -74,7 +76,7 @@ const FitnessKanbanBoard = () => {
       [column]: prev[column].filter(task => task.id !== taskId)
     }));
 
-    axios.delete(`http://localhost:5000/api/tasks/${taskId}`)
+    axios.delete(`${TASKS_URL}/${taskId}`)
       .catch((error) => console.error("Error removing task:", error));
   };
 
